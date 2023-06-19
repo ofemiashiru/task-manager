@@ -12,12 +12,11 @@ if os.path.exists("env.py"):
 
 
 app = Flask(__name__)
-
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DB_URL")
 
 db = SQLAlchemy(app)
 
 # This is imported last as it relies on the app and db variables above
-# noqa is used to stop any linting issues
+# 'noqa' is used to stop any linting issues
 from taskmanager import routes  # noqa
