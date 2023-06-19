@@ -38,7 +38,10 @@ class Task(db.Model):
     # ondelete="CASCADE" 1 to many relationship with Category as each Task
     # needs one Category If a Category is deleted then the tasks linked will
     # also be deleted
-    category_id = db.Column(db.Integer, db.ForeignKey("category.id", ondelete="CASCADE"), nullable=False)
+    category_id = db.Column(
+        db.Integer, 
+        db.ForeignKey("category.id", ondelete="CASCADE"), nullable=False
+    )
 
     # This is a standard python function meaning represent
     # Which means to represent the class objects as a string

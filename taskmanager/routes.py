@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, request, redirect, url_for
 from taskmanager import app, db
 # import the model classes that are responsible for generating the tables
 from taskmanager.models import Category, Task
@@ -15,3 +15,23 @@ from taskmanager.models import Category, Task
 @app.route("/")
 def home():
     return render_template("tasks.html")
+
+
+@app.route("/categories")
+def categories():
+    categories = db.session.query(Category)    
+    return render_template("categories.html", categories=categories)
+
+
+@app.route("/add_category", methods=["GET", "POST"])
+def add_category():
+    # Handling the GET and POST methods with if statement
+    if request.method == "POST":
+        category = Category(
+            category_name = request.form.get("category_name")
+        )
+        db.session.add(category)
+        db.session.commit()
+        return redirect(url_for("categories"))
+    # By default this handles the GET method
+    return render_template("add_category.html")
