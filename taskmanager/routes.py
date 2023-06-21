@@ -52,8 +52,8 @@ def edit_category(category_id):
     # id or produce a 404 message if not found
     category = Category.query.get_or_404(category_id)
     if request.method == "POST":
-        # if method is POST then set the called category above to the
-        # request.form.get()
+        # if method is POST then set the called category(.category_name) above
+        # to the request.form.get()
         category.category_name = request.form.get("category_name")
         db.session.commit()
         # remember to return your redirects
@@ -61,3 +61,11 @@ def edit_category(category_id):
 
     # default GET method
     return render_template("edit_category.html", category=category)
+
+
+@app.route("/delete_category/<int:category_id>")
+def delete_category(category_id):
+    category = Category.query.get_or_404(category_id)
+    db.session.delete(category)
+    db.session.commit()
+    return redirect(url_for("categories"))
