@@ -9,8 +9,9 @@ from taskmanager.models import Category, Task
 # connect to the database \c taskmanager;
 # then once connected we can quit the CLI \q
 
-# once created open the python CLI and write the following 
+# once created open the python CLI and write the following
 # from task manager import db
+
 
 @app.route("/")
 def home():
@@ -19,7 +20,11 @@ def home():
 
 @app.route("/categories")
 def categories():
-    categories = db.session.query(Category)    
+    # categories = db.session.query(Category).order_by(Category.category_name)
+
+    # The all() returns a cursor object so we can wrap in a list() to convert
+    # it to a Python list so it can be used in our template as a list
+    categories = list(Category.query.order_by(Category.category_name).all())
     return render_template("categories.html", categories=categories)
 
 
@@ -28,7 +33,7 @@ def add_category():
     # Handling the GET and POST methods with if statement
     if request.method == "POST":
         category = Category(
-            category_name = request.form.get("category_name")
+            category_name=request.form.get("category_name")
         )
         db.session.add(category)
         db.session.commit()
