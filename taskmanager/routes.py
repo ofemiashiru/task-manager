@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 from taskmanager import app, db
 # import the model classes that are responsible for generating the tables
 from taskmanager.models import Category, Task
@@ -17,6 +17,7 @@ from taskmanager.models import Category, Task
 def home():
     return render_template("tasks.html")
 
+# CATEGORY ROUTES
 
 @app.route("/categories")
 def categories():
@@ -69,3 +70,21 @@ def delete_category(category_id):
     db.session.delete(category)
     db.session.commit()
     return redirect(url_for("categories"))
+
+# TASK ROUTES
+
+@app.route("/add_task", methods=["GET", "POST"])
+def add_task():
+    categories = list(Category.query.order_by(Category.category_name).all())
+    if request.method == "POST":
+        task = Task(
+            task_name = request.form.get(),
+            task_description = request.form.get(),
+            is_urgent = request.form.get(),
+            due_date = request.form.get(),
+            category_id = ""
+        )
+        db.session.add(task)
+        db.session.commit()
+        return redirect(url_for("/"))
+    return render_template("tasks.html")
