@@ -75,16 +75,23 @@ def delete_category(category_id):
 
 @app.route("/add_task", methods=["GET", "POST"])
 def add_task():
+    # categories called to use in a dropdown list
     categories = list(Category.query.order_by(Category.category_name).all())
     if request.method == "POST":
         task = Task(
-            task_name = request.form.get(),
-            task_description = request.form.get(),
-            is_urgent = request.form.get(),
-            due_date = request.form.get(),
-            category_id = ""
+            task_name = request.form.get("task_name"),
+            task_description = request.form.get("task_description"),
+            is_urgent = bool(True if request.form.get("is_urgent") else False),
+            due_date = request.form.get("due_date"),
+            # Category ID, which will be generated as a dropdown list to choose 
+            # from, using the 'categories' list above.
+            category_id = request.form.get("category_id")
         )
         db.session.add(task)
         db.session.commit()
-        return redirect(url_for("/"))
-    return render_template("tasks.html")
+        # remember that we do not send directly to the route but to the function
+        # name
+        return redirect(url_for("home"))
+    # in order to display our categories in the template we need to pass it in
+    # as an argument
+    return render_template("add_task.html", categories=categories)
