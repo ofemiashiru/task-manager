@@ -1,8 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
 <h3 class="light-blue-text text-darken-4 center-align">Tasks</h3>
+<!-- Collapsable -->
 <div class="row">
+    <ul class="collapsible">
+        {% for task in tasks |sort(attribute="due_date") %}
+        <li>
+            <div class="collapsible-header">
+                {{ task.task_name }} : {{ task.due_date.strftime("%d, %B, %Y") }}
+                {%- if task.is_urgent -%}
+                <i class="fas fa-exclamation-circle prefix light-blue-text text-darken-4"></i>
+                {%- endif %}
+            </div>
+            <div class="collapsible-body">
+                <strong>{{ task.category }}</strong>
+                <p>{{ task.task_description }}</p>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
 
+<!-- Add More Tasks -->
+<div class="row">
     <div class="col s12 center-align">
         <a href="{{ url_for('add_task') }}" class="btn-large light-blue darken-2">
             Add Task <i class="fas fa-plus-square right"></i>

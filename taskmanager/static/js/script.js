@@ -5,6 +5,7 @@ const year = now.getFullYear();
 const yearFromNow = new Date();
 yearFromNow.setFullYear(yearFromNow.getFullYear() + 1);
 
+// Handles the Footer
 document.querySelector(".footer-copyright .container").innerHTML = `© ${year} Task Manager`;
 
 
@@ -32,4 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // drop down
     let selects = document.querySelectorAll("select");
     M.FormSelect.init(selects);
+
+    // collapsables
+    let collapsibles = document.querySelectorAll('.collapsible');
+    M.Collapsible.init(collapsibles);
 });

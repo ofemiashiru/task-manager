@@ -15,9 +15,12 @@ from taskmanager.models import Category, Task
 
 @app.route("/")
 def home():
-    return render_template("tasks.html")
+    # we can order by here or in the rendered page with jinja
+    tasks = list(Task.query.order_by(Task.due_date).all())
+    return render_template("tasks.html", tasks=tasks)
 
 # CATEGORY ROUTES
+
 
 @app.route("/categories")
 def categories():
@@ -73,19 +76,20 @@ def delete_category(category_id):
 
 # TASK ROUTES
 
+
 @app.route("/add_task", methods=["GET", "POST"])
 def add_task():
     # categories called to use in a dropdown list
     categories = list(Category.query.order_by(Category.category_name).all())
     if request.method == "POST":
         task = Task(
-            task_name = request.form.get("task_name"),
-            task_description = request.form.get("task_description"),
-            is_urgent = bool(True if request.form.get("is_urgent") else False),
-            due_date = request.form.get("due_date"),
-            # Category ID, which will be generated as a dropdown list to choose 
+            task_name=request.form.get("task_name"),
+            task_description=request.form.get("task_description"),
+            is_urgent=bool(True if request.form.get("is_urgent") else False),
+            due_date=request.form.get("due_date"),
+            # Category ID, which will be generated as a dropdown list to choose
             # from, using the 'categories' list above.
-            category_id = request.form.get("category_id")
+            category_id=request.form.get("category_id")
         )
         db.session.add(task)
         db.session.commit()
