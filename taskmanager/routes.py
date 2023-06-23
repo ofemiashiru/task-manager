@@ -1,7 +1,7 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, session, flash
 from taskmanager import app, db
 # import the model classes that are responsible for generating the tables
-from taskmanager.models import Category, Task
+from taskmanager.models import Category, Task, User
 
 # remember to create the database directly in postgresql -
 # command line psql
