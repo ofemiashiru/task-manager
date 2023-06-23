@@ -14,7 +14,8 @@
             </div>
             <div class="collapsible-body">
                 <strong>{{ task.category }}</strong>
-                <p>{{ task.task_description }}</p>
+
+                <textarea class="description-view" disabled>{{ task.task_description }}</textarea>
 
                 <div class="card-action">
                     <!-- We can send details within the url_for method which can be captured in the routes.py file -->
