@@ -13,3 +13,8 @@ main {
     height: 200px;
     border: none;
 }
+
+.warning {
+    color: #fff;
+    padding: 10px;
+}
