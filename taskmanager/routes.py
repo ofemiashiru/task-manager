@@ -80,6 +80,9 @@ def delete_category(category_id):
 
 @app.route("/add_task", methods=["GET", "POST"])
 def add_task():
+    if "user" not in session:
+        flash("You need to be logged in to add a task")
+        return redirect(url_for("home"))
     # categories called to use in a dropdown list
     categories = list(Category.query.order_by(Category.category_name).all())
     if request.method == "POST":
@@ -108,12 +111,17 @@ def edit_task(task_id):
     task = Task.query.get_or_404(task_id)
     categories = list(Category.query.order_by(Category.category_name).all())
 
+    if "user" not in session or session["user"] != task["created_by"]:
+        flash("You can only edit your own tasks!")
+        return redirect(url_for("get_tasks"))
+
     if request.method == "POST":
         task.task_name = request.form.get("task_name")
         task.task_description = request.form.get("task_description")
         task.is_urgent = bool(True if request.form.get("is_urgent") else False)
         task.due_date = request.form.get("due_date")
         task.category_id = request.form.get("category_id")
+        task.user_id = session["user_id"]
         db.session.commit()
 
         return redirect(url_for("home"))
@@ -124,6 +132,11 @@ def edit_task(task_id):
 @app.route("/delete_task/<int:task_id>")
 def delete_task(task_id):
     task = Task.query.get_or_404(task_id)
+
+    if "user" not in session or session["user"] != task["user_id"]:
+        flash("You can only delete your own tasks!")
+        return redirect(url_for("home"))
+
     db.session.delete(task)
     db.session.commit()
     return redirect(url_for("home"))
@@ -163,11 +176,38 @@ def profile(username):
     if "user" in session:
         return render_template("profile.html", username=session["user"])
 
-    return redirect(url_for("register"))
+    flash("You are not currently logged in")
+    return redirect(url_for("login"))
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        # check if username exists in db
+        existing_user = User.query.filter(
+            User.username == request.form.get("username").lower()).all()
+
+        if existing_user:
+            # ensure hashed password matches user input
+            if check_password_hash(
+                    existing_user[0].password, request.form.get("password")):
+                session["logged_in"] = True
+                session["user"] = request.form.get("username").lower()
+                session["user_id"] = existing_user[0].id
+                flash("Welcome, {}".format(
+                    request.form.get("username")))
+                return redirect(url_for(
+                    "profile", username=session["user"]))
+            else:
+                # invalid password match
+                flash("Incorrect Username and/or Password")
+                return redirect(url_for("login"))
+
+        else:
+            # username doesn't exist
+            flash("Incorrect Username and/or Password")
+            return redirect(url_for("login"))
+
     return render_template("login.html")
 
 
@@ -175,5 +215,7 @@ def login():
 def logout():
     flash("You have been logged out")
     # remove user from session cookie
+    session.pop("logged_in")
     session.pop("user")
+    session("user_id")
     return redirect(url_for("login"))
