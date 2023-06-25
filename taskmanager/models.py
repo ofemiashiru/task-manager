@@ -1,13 +1,18 @@
 from taskmanager import db
 
+
 class User(db.Model):
-    # schema for user
+    # schema for User Model
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
 
+    tasks = db.relationship("Task", backref="user",
+                            cascade="all, delete", lazy=True)
+
     def __repr__(self):
         return self.username
+
 
 class Category(db.Model):
     # schema for the Category model
@@ -24,7 +29,8 @@ class Category(db.Model):
     # the database for categories, it can simultaneously identify any task
     # linked to the categories.
 
-    tasks = db.relationship("Task", backref="category", cascade="all, delete", lazy=True)
+    tasks = db.relationship("Task", backref="category",
+                            cascade="all, delete", lazy=True)
 
     def __repr__(self):
         # __repr__ to represent itself in the form of a string
@@ -47,10 +53,14 @@ class Task(db.Model):
     # needs one Category If a Category is deleted then the tasks linked will
     # also be deleted
     category_id = db.Column(
-        db.Integer, 
+        db.Integer,
         db.ForeignKey("category.id", ondelete="CASCADE"), nullable=False
     )
 
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+    )
     # This is a standard python function meaning represent
     # Which means to represent the class objects as a string
 

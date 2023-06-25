@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, url_for, session, flash
 from taskmanager import app, db
 # import the model classes that are responsible for generating the tables
 from taskmanager.models import Category, Task, User
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # remember to create the database directly in postgresql -
 # command line psql
@@ -89,7 +90,8 @@ def add_task():
             due_date=request.form.get("due_date"),
             # Category ID, which will be generated as a dropdown list to choose
             # from, using the 'categories' list above.
-            category_id=request.form.get("category_id")
+            category_id=request.form.get("category_id"),
+            user_id=session["user_id"]
         )
         db.session.add(task)
         db.session.commit()
@@ -125,3 +127,53 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
     return redirect(url_for("home"))
+
+# User Authentication
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        # check if username already exists in db
+        existing_user = User.query.filter(
+            User.username == request.form.get("username").lower()).all()
+
+        if existing_user:
+            flash("Username already exists")
+            return redirect(url_for("register"))
+
+        user = User(
+            username=request.form.get("username").lower(),
+            password=generate_password_hash(request.form.get("password"))
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        session["user"] = request.form.get("username").lower()
+        flash("Registration Successful!")
+        return redirect(url_for("profile", username=session["user"]))
+
+    return render_template("register.html")
+
+
+@app.route("/profile/<username>", methods=["GET", "POST"])
+def profile(username):
+
+    if "user" in session:
+        return render_template("profile.html", username=session["user"])
+
+    return redirect(url_for("register"))
+
+
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    flash("You have been logged out")
+    # remove user from session cookie
+    session.pop("user")
+    return redirect(url_for("login"))
